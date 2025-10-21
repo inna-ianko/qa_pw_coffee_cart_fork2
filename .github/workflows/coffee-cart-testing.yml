@@ -80,3 +80,5 @@ jobs:
      - name: Deploy to GitHub Pages
        id: deployment
        uses: actions/deploy-pages@v4
+     - name: Show Report Link
+       run: echo https://inna-ianko.github.io/qa_pw_coffee_cart_fork2

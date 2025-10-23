@@ -54,9 +54,11 @@ jobs:
           docker run -v $PWD/allure_results:/allure_results e2e-tests
 
       - name: Download all workflow run artifacts
+        if: always() && !cancelled()
         uses: actions/download-artifact@v4
 
       - name: Copy allure history
+        if: always() && !cancelled()
         run: cp -r history allure_results/history
 
       - name: Upload Allure Results as Artifact

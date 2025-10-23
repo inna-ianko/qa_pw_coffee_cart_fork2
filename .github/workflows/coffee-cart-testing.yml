@@ -21,17 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact from previous run
-        uses: actions/download-artifact@v4
-        with:
-          repository: qa_pw_coffee_cart_fork2
-          run-id: 18716065176
-      - name: List artifacts
-        run: ls
+        run: ./.github/workflows/scripts/download_allure_history.sh
+
       - name: Upload allure history artifact
         uses: actions/upload-artifact@v4
         with:
-          name: history
-          path: previous_allure_report/history
+          name: allure_history
+          path: allure_history
 
   e2e-testing:
     name: Run e2e tests

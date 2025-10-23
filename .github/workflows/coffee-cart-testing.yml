@@ -13,10 +13,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 jobs:
-  get-allure-history:
-    name: Run e2e tests
+  upload-allure-history:
+    name: Upload allure history
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact from previous run
@@ -24,8 +25,7 @@ jobs:
         with:
           name: _site # The name of the artifact to download
           path: previous_allure_report
-          workflow: coffee-cart-testing.yml
-          branch: main
+          run-id: 16
       - name: Upload allure history artifact
         uses: actions/upload-artifact@v4
         with:
@@ -34,7 +34,9 @@ jobs:
 
   e2e-testing:
     name: Run e2e tests
+    needs: get-allure-history
     runs-on: ubuntu-latest
+    if: always() && !cancelled()
 
     steps:
       - name: Check out the repository

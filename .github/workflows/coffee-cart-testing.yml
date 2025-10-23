@@ -20,12 +20,12 @@ jobs:
     name: Upload allure history
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
       - name: Download artifact from previous run
-        run: ./.github/workflows/scripts/download_allure_history.sh
-
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          workflow: coffee-cart-testing.yml
+          name: _site
+          path: allure_report
       - name: Upload allure history artifact
         uses: actions/upload-artifact@v4
         with:

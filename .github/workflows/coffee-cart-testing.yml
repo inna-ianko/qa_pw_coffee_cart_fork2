@@ -49,17 +49,15 @@ jobs:
       - name: Build Docker image
         run: docker build -t e2e-tests .
 
-      - name: Run e2e tests
-        run: |
-          docker run -v $PWD/allure_results:/allure_results e2e-tests
-
       - name: Download all workflow run artifacts
         if: always() && !cancelled()
         uses: actions/download-artifact@v4
 
-      - name: Copy allure history
-        if: always() && !cancelled()
-        run: cp -r history $PWD/allure_results/history
+      - name: Run e2e tests
+        run: |
+          mkdir $PWD/allure_results
+          cp -r history $PWD/allure_results
+          docker run -v $PWD/allure_results:/allure_results e2e-tests
 
       - name: Upload Allure Results as Artifact
         if: always() && !cancelled()

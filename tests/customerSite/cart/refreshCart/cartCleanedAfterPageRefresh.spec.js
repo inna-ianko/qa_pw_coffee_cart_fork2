@@ -12,6 +12,6 @@ test('Cart cleaned after page refresh', async ({ cartPage, menuPage }) => {
 
   await cartPage.reload();
 
-  await cartPage.assertCoffeeItemIsVisible(COFFEE_NAMES.cappuccino);
+  await cartPage.assertCoffeeItemIsHidden(COFFEE_NAMES.cappuccino);
   await cartPage.assertNoCoffeeMessageIsVisible();
 });

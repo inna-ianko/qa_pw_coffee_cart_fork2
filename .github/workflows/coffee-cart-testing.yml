@@ -34,7 +34,7 @@ jobs:
 
   e2e-testing:
     name: Run e2e tests
-    needs: get-allure-history
+    needs: upload-allure-history
     runs-on: ubuntu-latest
     if: always() && !cancelled()
 

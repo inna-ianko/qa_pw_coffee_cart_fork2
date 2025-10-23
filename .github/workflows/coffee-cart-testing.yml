@@ -16,27 +16,8 @@ permissions:
   actions: read
 
 jobs:
-  upload-allure-history:
-    continue-on-error: true
-    name: Upload allure history
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact from previous run
-        uses: dawidd6/action-download-artifact@v11
-        with:
-          workflow: coffee-cart-testing.yml
-          workflow_conclusion: ''
-          name: _site
-          path: allure_report
-      - name: Upload allure history artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure_history
-          path: allure_history
-
   e2e-testing:
     name: Run e2e tests
-    needs: upload-allure-history
     runs-on: ubuntu-latest
     if: always() && !cancelled()
 
@@ -57,8 +38,8 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
 
-      - name: Copy allure history
-        run: cp -r history allure_results/history
+      # - name: Copy allure history
+      #   run: cp -r history allure_results/history
 
       - name: Upload Allure Results as Artifact
         if: always() && !cancelled()

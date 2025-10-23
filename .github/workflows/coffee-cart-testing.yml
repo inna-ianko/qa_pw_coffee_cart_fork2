@@ -23,9 +23,9 @@ jobs:
       - name: Download artifact from previous run
         uses: actions/download-artifact@v4
         with:
-          name: _site # The name of the artifact to download
+          name: _site
           path: previous_allure_report
-          run-id: 16
+          run-id: 18716065176
       - name: Upload allure history artifact
         uses: actions/upload-artifact@v4
         with:

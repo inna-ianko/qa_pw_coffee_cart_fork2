@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Fetch the artifact ID using curl and jq (instead of Python)
+# Fetch the artifact ID using curl and jq
 REPORT_ID=$(curl -L \
   -H "Accept: application/vnd.github+json" \
   -H "X-GitHub-Api-Version: 2022-11-28" \

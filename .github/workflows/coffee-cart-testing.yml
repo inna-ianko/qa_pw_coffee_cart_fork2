@@ -16,7 +16,7 @@ permissions:
   actions: read
 
 jobs:
-  upload-allure-history:
+  download-allure-history:
     name: Upload allure history
     runs-on: ubuntu-latest
     steps:
@@ -35,11 +35,9 @@ jobs:
 
   e2e-testing:
     name: Run e2e tests
-    needs: upload-allure-history
+    needs: download-allure-history
     runs-on: ubuntu-latest
     if: always() && !cancelled()
-    env:
-      ALLURE_RESULTS: '$PWD/allure_results'
 
     steps:
       - name: Check out the repository
@@ -50,8 +48,8 @@ jobs:
 
       - name: Copy allure history to report location
         run: |
-          mkdir $ALLURE_RESULTS
-          cp -r history $ALLURE_RESULTS
+          mkdir $PWD/allure_results
+          cp -r history $PWD/allure_results
 
       - name: Set up Docker
         uses: docker/setup-docker-action@v4.3.0
@@ -61,7 +59,7 @@ jobs:
 
       - name: Run e2e tests
         run: |
-          docker run -v $ALLURE_RESULTS:/allure_results e2e-tests
+          docker run -v $PWD/allure_results:/allure_results e2e-tests
 
       - name: Upload Allure Results as Artifact
         if: always() && !cancelled()

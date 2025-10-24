@@ -22,8 +22,8 @@ jobs:
     if: always() && !cancelled()
 
     steps:
-      #  - name: Check out the repository
-      #    uses: actions/checkout@v2
+      - name: Check out the repository
+        uses: actions/checkout@v2
 
       #  - name: Download all workflow run artifacts
       #    uses: actions/download-artifact@v4

@@ -38,10 +38,20 @@ jobs:
     needs: upload-allure-history
     runs-on: ubuntu-latest
     if: always() && !cancelled()
+    env:
+      ALLURE_RESULTS: '$PWD/allure_results'
 
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Copy allure history to report location
+        run: |
+          mkdir $ALLURE_RESULTS
+          cp -r history $ALLURE_RESULTS
 
       - name: Set up Docker
         uses: docker/setup-docker-action@v4.3.0
@@ -49,15 +59,9 @@ jobs:
       - name: Build Docker image
         run: docker build -t e2e-tests .
 
-      - name: Download all workflow run artifacts
-        if: always() && !cancelled()
-        uses: actions/download-artifact@v4
-
       - name: Run e2e tests
         run: |
-          mkdir $PWD/allure_results
-          cp -r history $PWD/allure_results
-          docker run -v $PWD/allure_results:/allure_results e2e-tests
+          docker run -v $ALLURE_RESULTS:/allure_results e2e-tests
 
       - name: Upload Allure Results as Artifact
         if: always() && !cancelled()

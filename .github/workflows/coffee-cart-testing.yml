@@ -16,22 +16,39 @@ permissions:
   actions: read
 
 jobs:
+  download-allure-history:
+    name: Download allure history
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download _site artifact from previous run
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          workflow: coffee-cart-testing.yml
+          workflow_conclusion: completed
+          name: _site
+          path: allure_report
+      - name: Upload allure history artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: history
+          path: allure_report/history
+
   e2e-testing:
     name: Run e2e tests
+    needs: download-allure-history
     runs-on: ubuntu-latest
-    if: always() && !cancelled()
 
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      #  - name: Download all workflow run artifacts
-      #    uses: actions/download-artifact@v4
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
 
-      #  - name: Copy allure history to report location
-      #    run: |
-      #      mkdir $PWD/allure_results
-      #      cp -r history $PWD/allure_results
+      - name: Copy allure history to report location
+        run: |
+          mkdir $PWD/allure_results
+          cp -r history $PWD/allure_results
 
       - name: Set up Docker
         uses: docker/setup-docker-action@v4.3.0

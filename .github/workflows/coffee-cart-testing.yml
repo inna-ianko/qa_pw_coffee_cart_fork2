@@ -1,0 +1,114 @@
+name: Coffee-cart testing workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+jobs:
+  download-allure-history:
+    name: Download allure history
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download _site artifact from previous run
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          workflow: coffee-cart-testing.yml
+          workflow_conclusion: completed
+          name: _site
+          path: allure_report
+      - name: Upload allure history artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: history
+          path: allure_report/history
+
+  e2e-testing:
+    name: Run e2e tests
+    needs: download-allure-history
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Copy allure history to report location
+        run: |
+          mkdir $PWD/allure_results
+          cp -r history $PWD/allure_results
+
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4.3.0
+
+      - name: Build Docker image
+        run: docker build -t e2e-tests .
+
+      - name: Run e2e tests
+        run: |
+          docker run -v $PWD/allure_results:/allure_results e2e-tests
+
+      - name: Upload Allure Results as Artifact
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure_results
+          path: allure_results
+
+  generate-report:
+    name: Generate Allure report
+    if: always() && !cancelled()
+    needs: e2e-testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup JAVA
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - name: Download Allure CLI
+        run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.34.1/allure-2.34.1.tgz && sudo tar -zxvf allure-2.34.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.34.1/bin/allure /usr/bin/allure
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate Allure report
+        run: allure generate -c allure_results -o _site
+
+      - name: Store generated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: _site
+          path: _site
+          retention-days: 1
+
+  publish-report:
+    name: Report publication
+    if: always() && !cancelled()
+    needs: generate-report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Show Report Link
+        run: echo https://inna-ianko.github.io/qa_pw_coffee_cart_fork2
